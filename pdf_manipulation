@@ -1,0 +1,71 @@
+import PyPDF2
+import base64
+
+def merge_pdfs(input_files, output_file):
+    # Create a PDF merger object
+    pdf_merger = PyPDF2.PdfFileMerger()
+
+    # Add input PDF files to the merger
+    for input_file in input_files:
+        pdf_merger.append(input_file)
+
+    # Write the merged PDF to the output file
+    with open(output_file, 'wb') as output_pdf:
+        pdf_merger.write(output_pdf)
+
+    print(f'Merged PDFs saved to: {output_file}')
+
+def split_pdf(input_file, output_prefix):
+    # Open the PDF file in binary mode
+    with open(input_file, 'rb') as pdf_file:
+        # Create a PDF reader object
+        pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+
+        # Get the total number of pages in the PDF
+        total_pages = pdf_reader.numPages
+
+        # Iterate through each page and create a separate PDF for each page
+        for page_number in range(total_pages):
+            # Create a PDF writer object
+            pdf_writer = PyPDF2.PdfFileWriter()
+
+            # Add the current page to the writer
+            pdf_writer.addPage(pdf_reader.getPage(page_number))
+
+            # Save the individual page as a new PDF file
+            output_file = f'{output_prefix}_page_{page_number + 1}.pdf'
+            with open(output_file, 'wb') as output_pdf:
+                pdf_writer.write(output_pdf)
+            
+            print(f'Page {page_number + 1} saved to: {output_file}')
+
+def convert_pdf_to_base64(input_file):
+    # Open the PDF file in binary mode
+    with open(input_file, 'rb') as pdf_file:
+        # Read the content of the PDF file
+        pdf_content = pdf_file.read()
+
+        # Encode the content in Base64
+        base64_encoded = base64.b64encode(pdf_content).decode('utf-8')
+
+    return base64_encoded
+
+if __name__ == "__main__":
+
+    # Example usage PDF Merge:
+    input_files = ['file1.pdf', 'file2.pdf']
+    output_file = 'merged_output.pdf'
+    
+    merge_pdfs(input_files, output_file)
+
+   # Example usage PDF split:
+    input_file = 'input.pdf'
+    output_prefix = 'output_split'
+    
+    split_pdf(input_file, output_prefix)
+
+  # Example usage PDF to base64:
+    input_file = 'input.pdf'
+    
+    base64_data = convert_pdf_to_base64(input_file)
+    print(f'PDF content encoded in Base64:\n{base64_data}')
